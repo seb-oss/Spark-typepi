@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "license": "Apache-2.0",
   "scripts": {},
-  "private": false,
+  "private": true,
   "contributors": [
     "Johan Öbrink <johan.obrink@gmail.com"
   ],
