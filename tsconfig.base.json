@@ -14,7 +14,12 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@typepi/core": ["packages/core/src/index.ts"],
+      "@typepi/express-router": ["packages/express-router/src/index.ts"],
+      "@typepi/fetcher": ["packages/fetcher/src/index.ts"],
+      "@typepi/generator": ["packages/generator/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

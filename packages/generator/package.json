@@ -1,0 +1,10 @@
+{
+  "name": "@typepi/generator",
+  "version": "0.0.1",
+  "dependencies": {
+    "glob": "8.0.3"
+  },
+  "devDependencies": {
+    "@types/glob": "8.0.0"
+  }
+}
