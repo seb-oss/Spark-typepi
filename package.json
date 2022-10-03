@@ -2,7 +2,11 @@
   "name": "typepi",
   "version": "0.0.0",
   "license": "Apache-2.0",
-  "scripts": {},
+  "scripts": {
+    "build": "nx build",
+    "lint": "nx lint",
+    "test": "nx test"
+  },
   "private": true,
   "contributors": [
     "Johan Öbrink <johan.obrink@gmail.com"
