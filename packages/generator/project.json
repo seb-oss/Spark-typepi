@@ -11,7 +11,10 @@
         "tsConfig": "packages/generator/tsconfig.lib.json",
         "packageJson": "packages/generator/package.json",
         "main": "packages/generator/src/index.ts",
-        "assets": ["packages/generator/bin/generate.js"]
+        "assets": [
+          "packages/generator/bin/generate.js",
+          "packages/generator/README.md"
+        ]
       }
     },
     "lint": {
