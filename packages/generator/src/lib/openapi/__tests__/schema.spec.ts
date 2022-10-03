@@ -19,6 +19,7 @@ describe('schema', () => {
           CardSettings: expect.any(String),
           CardList: expect.any(String),
           Documented: expect.any(String),
+          HttpError: expect.any(String),
         })
       })
       it('generates all properties', () => {
@@ -112,11 +113,17 @@ export interface Documented {
     
         expect(putCardSettings.requestBody).toEqual('CardSettings')
       })
-      it('generates result', () => {
+      it('generates response', () => {
         const generated = generateBaseData({ schema })
         const getCard = generated.paths[0]
     
-        expect(getCard.resultBody).toEqual('Card')
+        expect(getCard.response).toEqual('[[200, Card]]')
+      })
+      it('generates errorResponse', () => {
+        const generated = generateBaseData({ schema })
+        const getCard = generated.paths[0]
+    
+        expect(getCard.errorResponse).toEqual('[[401, HttpError]]')
       })
     })
   })
@@ -127,13 +134,13 @@ export interface Documented {
 
       expect(map).toEqual({
         get: {
-          '/:cardId': 'TypedRoute<{cardId: string}, Card, never, {cardNickname: boolean}>',
+          '/:cardId': 'TypedRoute<{cardId: string}, {cardNickname: boolean}, never, [[200, Card]], [[401, HttpError]]>',
         },
         put: {
-          '/:cardId/settings': 'TypedRoute<{cardId: string}, never, CardSettings, never>',
+          '/:cardId/settings': 'TypedRoute<{cardId: string}, never, CardSettings, [[204, never]], never>',
         },
         delete: {
-          '/:cardId': 'TypedRoute<{cardId: string}, Card, never, {cardNickname: boolean}>',
+          '/:cardId': 'TypedRoute<{cardId: string}, {cardNickname: boolean}, never, [[200, Card]], never>',
         },
       })
     })
@@ -183,25 +190,28 @@ export interface Documented {
   settings?: CardSettings
 }
 
-type Server = 'http://localhost:3000/cards' | 'https://core.run.app/cards'
+export interface HttpError {
+  message: string
+  stack?: string
+}
 
-type TypedRoute<RequestParams, ResultBody, RequestBody, RequestQuery> = {
+type TypedRoute<RequestParams, RequestQuery, RequestBody, Response, ErrorResponse> = {
   requestParams: RequestParams
-  resultBody: ResultBody
-  requestBody: RequestBody
   requestQuery: RequestQuery
+  requestBody: RequestBody
+  response: Response
+  error: ErrorResponse
 }
 
 export type RoutesDefinition = {
-  server: Server,
   get: {
-    '/:cardId': TypedRoute<{cardId: string}, Card, never, {cardNickname: boolean}>,
+    '/:cardId': TypedRoute<{cardId: string}, {cardNickname: boolean}, never, [[200, Card]], [[401, HttpError]]>,
   },
   delete: {
-    '/:cardId': TypedRoute<{cardId: string}, Card, never, {cardNickname: boolean}>,
+    '/:cardId': TypedRoute<{cardId: string}, {cardNickname: boolean}, never, [[200, Card]], never>,
   },
   put: {
-    '/:cardId/settings': TypedRoute<{cardId: string}, never, CardSettings, never>,
+    '/:cardId/settings': TypedRoute<{cardId: string}, never, CardSettings, [[204, never]], never>,
   },
 }
 `)

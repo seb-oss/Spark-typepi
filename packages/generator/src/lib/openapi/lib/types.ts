@@ -188,7 +188,8 @@ export interface Route {
   url: string
   method: HttpVerb
   requestParams: string
-  resultBody: string
-  requestBody: string
   requestQuery: string
+  requestBody: string
+  response: string
+  errorResponse: string
 }

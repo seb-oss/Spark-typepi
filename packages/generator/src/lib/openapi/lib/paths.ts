@@ -51,16 +51,20 @@ const generateBody = (body: RequestBody): string => {
   return 'never'
 }
 
-const generateResult = (responses: Record<string, ReferenceObject | ResponseObject>): string => {
+const arrString = (arr: any[]): string => `[${arr.filter(i => i).join(', ')}]`
+
+const generateResponse = (responses: Record<string, ReferenceObject | ResponseObject>, errors = false): string => {
   const responseTypes = Object
     .entries(responses)
     .map(([strCode, response]) => {
-      if ('$ref' in response) return parseRef(response)
-      
-      return parseResponse(response)
+      const code = parseInt(strCode, 10)
+      if ((code >= 400) !== errors) return
+      if ('$ref' in response) return [code, parseRef(response)]
+
+      return arrString([code, parseResponse(response as ResponseObject) || 'never'])
     })
     .filter(r => r)
-  if (responseTypes.length) return responseTypes.join(' | ')
+  if (responseTypes.length) return arrString(responseTypes)
 
   return 'never'
 }
@@ -78,7 +82,8 @@ const generateRoutes = (path: string, item: PathItemObject): Route[] => {
       requestBody: generateBody(operation.requestBody as RequestBody),
       requestParams: generateProps(operation.parameters || [], 'path'),
       requestQuery: generateProps(operation.parameters || [], 'query'),
-      resultBody: generateResult(operation.responses),
+      response: generateResponse(operation.responses),
+      errorResponse: generateResponse(operation.responses, true),
     } 
   })
 

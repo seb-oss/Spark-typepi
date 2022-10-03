@@ -23,9 +23,9 @@ export const generateBaseData = ({ schema }: GenerateOptions): GenerateResult =>
 
 export const generateRoutesDefinition = (routes: Route[]): Partial<Record<HttpVerb, Record<string, string>>> => {
   const map: Partial<Record<HttpVerb, Record<string, string>>> = {}
-  return routes.reduce((map, { method, requestBody, requestParams, requestQuery, resultBody, url }) => {
+  return routes.reduce((map, { url, method, requestParams, requestQuery, requestBody, response, errorResponse }) => {
     if (!map[method]) map[method] = {}
-    map[method][url] = `TypedRoute<${requestParams}, ${resultBody}, ${requestBody}, ${requestQuery}>`
+    map[method][url] = `TypedRoute<${requestParams}, ${requestQuery}, ${requestBody}, ${response}, ${errorResponse}>`
     
     return map
   }, map)
@@ -39,11 +39,12 @@ const header = `/**
 /* tslint:disable */
 /* eslint-disable */`
 
-const typedRoute = `type TypedRoute<RequestParams, ResultBody, RequestBody, RequestQuery> = {
+const typedRoute = `type TypedRoute<RequestParams, RequestQuery, RequestBody, Response, ErrorResponse> = {
   requestParams: RequestParams
-  resultBody: ResultBody
-  requestBody: RequestBody
   requestQuery: RequestQuery
+  requestBody: RequestBody
+  response: Response
+  error: ErrorResponse
 }`
 
 export const generate = ({ schema }: GenerateOptions): string => {

@@ -41,6 +41,16 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpError"
+                }
+              }
+            }
           }
         }
       },
@@ -102,7 +112,7 @@
           }
         },
         "responses": {
-          "200": {
+          "204": {
             "description": "OK"
           }
         }
@@ -178,6 +188,19 @@
           }
         },
         "required": ["id"]
+      },
+      "HttpError": {
+        "title": "HttpError",
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "stack": {
+            "type": "string"
+          }
+        },
+        "required": ["message"]
       }
     }
   }
