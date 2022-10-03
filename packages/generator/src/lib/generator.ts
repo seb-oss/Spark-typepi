@@ -1,19 +1,17 @@
-import { __promisify__ as glob } from 'glob'
-import { readFile } from 'fs/promises'
-import { generate as openApiGenerate, GenerateOptions, OpenAPI3 } from './openapi'
+import { glob } from 'glob'
+import { promisify } from 'util'
+import { readFile, writeFile, mkdir } from 'fs/promises'
+import { parse, join } from 'path'
+import { generate as openApiGenerate, OpenAPI3 } from './openapi'
 
-interface Options extends Partial<GenerateOptions> {
-  input?: string
-  output?: string
-}
-
-const getSchemas = async (input: string): Promise<OpenAPI3[]> => {
-  const schemas: OpenAPI3[] = []
+const getSchemas = async (input: string): Promise<Record<string, OpenAPI3>> => {
+  const schemas: Record<string, OpenAPI3> = {}
   
-  const files = await glob(input)
+  const files = await promisify(glob)(input)
   for (const file of files) {
+    const { name } = parse(file)
     const content = await readFile(file, 'utf-8')
-    schemas.push(JSON.parse(content))
+    schemas[name] = JSON.parse(content)
   }
 
   return schemas
@@ -25,13 +23,23 @@ export const generate = async ({ schema, input, output }): Promise<string | stri
   if (!input) throw new Error('You need to supply at least one schema')
 
   const schemas = await getSchemas(input)
-  const generated = schemas.map((schema) => (
-    openApiGenerate({ schema })
-  ))
+  const generated = Object.entries(schemas)
+    .map(([name, schema]) => ({ name, schema: openApiGenerate({ schema }) }))
 
-  if (!output) return generated
+  // print result
+  if (!output) return generated.map(({ name, schema }) => `/**
+ * ${name}
+ */
+${schema}
+`).join('\n')
   
   // save files
+  await mkdir(output, { recursive: true })
+  for (const { name, schema } of generated) {
+    const path = join(output, `${name}.ts`)
+    await writeFile(path, schema, 'utf-8')
+    console.log(path)
+  }
 
   return
 }
