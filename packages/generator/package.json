@@ -5,5 +5,17 @@
   "dependencies": {
     "fast-glob": "3.2.12"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "license": "Apache-2.0",
+  "contributors": [
+    "Johan Öbrink <johan.obrink@gmail.com"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/seb-neo/typepi.git"
+  },
+  "homepage": "https://github.com/seb-neo/typepi#readme",
+  "bugs": {
+    "url": "https://github.com/seb-neo/typepi/issues"
+  }
 }

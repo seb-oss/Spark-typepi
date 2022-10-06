@@ -3,6 +3,13 @@
   "sourceRoot": "packages/generator/src",
   "projectType": "library",
   "targets": {
+    "syncPackage": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "packages/generator",
+        "command": "node ../../tools/scripts/syncPackage.mjs"
+      }
+    },
     "build": {
       "executor": "@nrwl/js:tsc",
       "outputs": ["{options.outputPath}"],
@@ -13,9 +20,11 @@
         "main": "packages/generator/src/index.ts",
         "assets": [
           "packages/generator/bin/generate.js",
-          "packages/generator/README.md"
+          "packages/generator/README.md",
+          "LICENSE"
         ]
-      }
+      },
+      "dependsOn": ["syncPackage"]
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
