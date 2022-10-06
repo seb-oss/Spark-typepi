@@ -1,5 +1,4 @@
-import { glob } from 'glob'
-import { promisify } from 'util'
+import * as fastGlob from 'fast-glob'
 import { readFile, writeFile, mkdir } from 'fs/promises'
 import { parse, join } from 'path'
 import { generate as openApiGenerate, OpenAPI3 } from './openapi'
@@ -7,7 +6,8 @@ import { generate as openApiGenerate, OpenAPI3 } from './openapi'
 const getSchemas = async (input: string): Promise<Record<string, OpenAPI3>> => {
   const schemas: Record<string, OpenAPI3> = {}
   
-  const files = await promisify(glob)(input)
+  const files = fastGlob.sync(input, { globstar: true, dot: true })
+  console.log(input, files)
   for (const file of files) {
     const { name } = parse(file)
     const content = await readFile(file, 'utf-8')

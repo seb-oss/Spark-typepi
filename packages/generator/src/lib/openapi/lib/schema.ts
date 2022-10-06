@@ -1,6 +1,6 @@
 import { generatePaths } from './paths'
 import { generateTypes } from './schemaTypes'
-import { HttpVerb, OpenAPI3, Route } from './types'
+import { OpenAPI3, Route, RoutesDefinition } from './types'
 
 export interface GenerateOptions {
   schema: OpenAPI3
@@ -21,11 +21,11 @@ export const generateBaseData = ({ schema }: GenerateOptions): GenerateResult =>
   return { types, paths }
 }
 
-export const generateRoutesDefinition = (routes: Route[]): Partial<Record<HttpVerb, Record<string, string>>> => {
-  const map: Partial<Record<HttpVerb, Record<string, string>>> = {}
-  return routes.reduce((map, { url, method, requestParams, requestQuery, requestBody, response, errorResponse }) => {
+export const generateRoutesDefinition = (routes: Route[]): RoutesDefinition => {
+  const map: RoutesDefinition = {}
+  return routes.reduce((map, { url, method, requestParams, requestQuery, requestHeaders, requestBody, response, errorResponse }) => {
     if (!map[method]) map[method] = {}
-    map[method][url] = `TypedRoute<${requestParams}, ${requestQuery}, ${requestBody}, ${response}, ${errorResponse}>`
+    map[method][url] = `TypedRoute<${requestParams}, ${requestQuery}, ${requestHeaders}, ${requestBody}, ${response}, ${errorResponse}>`
     
     return map
   }, map)
@@ -39,9 +39,10 @@ const header = `/**
 /* tslint:disable */
 /* eslint-disable */`
 
-const typedRoute = `type TypedRoute<RequestParams, RequestQuery, RequestBody, Response, ErrorResponse> = {
+const typedRoute = `type TypedRoute<RequestParams, RequestQuery, RequestHeaders, RequestBody, Response, ErrorResponse> = {
   requestParams: RequestParams
   requestQuery: RequestQuery
+  requestHeaders: RequestHeaders
   requestBody: RequestBody
   response: Response
   error: ErrorResponse

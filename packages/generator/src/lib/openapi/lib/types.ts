@@ -96,7 +96,7 @@ export interface SchemaObject {
   items?: ReferenceObject | SchemaObject;
   allOf?: SchemaObject;
   properties?: Record<string, ReferenceObject | SchemaObject>;
-  default?: any;
+  default?: unknown;
   additionalProperties?: boolean | ReferenceObject | SchemaObject;
   nullable?: boolean; // V3 ONLY
   oneOf?: (ReferenceObject | SchemaObject)[]; // V3 ONLY
@@ -189,7 +189,10 @@ export interface Route {
   method: HttpVerb
   requestParams: string
   requestQuery: string
+  requestHeaders: string
   requestBody: string
   response: string
   errorResponse: string
 }
+
+export type RoutesDefinition = Partial<Record<HttpVerb, Record<string, string>>>

@@ -5,7 +5,8 @@
   "scripts": {
     "build": "nx build",
     "lint": "nx lint",
-    "test": "nx test"
+    "test": "nx test",
+    "generate": "nx build generator && ./dist/packages/generator/bin/generate.js openapi -i ./packages/generator/src/lib/openapi/__tests__/*.json -o ./packages/express-router/src/lib/__tests__/"
   },
   "private": true,
   "contributors": [

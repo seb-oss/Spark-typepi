@@ -29,6 +29,19 @@
             "in": "query",
             "required": true,
             "schema": { "type": "boolean" }
+          },
+          {
+            "name": "X-User-Id",
+            "in": "header",
+            "description": "X-User-Id",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "X-Distributor-Id",
+            "in": "header",
+            "description": "X-Distributor-Id",
+            "schema": { "type": "string" }
           }
         ],
         "responses": {

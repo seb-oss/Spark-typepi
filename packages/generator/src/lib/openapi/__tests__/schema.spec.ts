@@ -107,6 +107,12 @@ export interface Documented {
     
         expect(getCard.requestQuery).toEqual('{cardNickname: boolean}')
       })
+      it('generates headers', () => {
+        const generated = generateBaseData({ schema })
+        const getCard = generated.paths[0]
+    
+        expect(getCard.requestHeaders).toEqual("{'X-User-Id': string, 'X-Distributor-Id'?: string}")
+      })
       it('generates body', () => {
         const generated = generateBaseData({ schema })
         const putCardSettings = generated.paths[2]
@@ -134,13 +140,13 @@ export interface Documented {
 
       expect(map).toEqual({
         get: {
-          '/:cardId': 'TypedRoute<{cardId: string}, {cardNickname: boolean}, never, [[200, Card]], [[401, HttpError]]>',
+          '/:cardId': "TypedRoute<{cardId: string}, {cardNickname: boolean}, {'X-User-Id': string, 'X-Distributor-Id'?: string}, never, [[200, Card]], [[401, HttpError]]>",
         },
         put: {
-          '/:cardId/settings': 'TypedRoute<{cardId: string}, never, CardSettings, [[204, never]], never>',
+          '/:cardId/settings': "TypedRoute<{cardId: string}, never, {'x-forwarded-authorization': string}, CardSettings, [[204, never]], never>",
         },
         delete: {
-          '/:cardId': 'TypedRoute<{cardId: string}, {cardNickname: boolean}, never, [[200, Card]], never>',
+          '/:cardId': 'TypedRoute<{cardId: string}, {cardNickname: boolean}, never, never, [[200, Card]], never>',
         },
       })
     })
@@ -195,9 +201,10 @@ export interface HttpError {
   stack?: string
 }
 
-type TypedRoute<RequestParams, RequestQuery, RequestBody, Response, ErrorResponse> = {
+type TypedRoute<RequestParams, RequestQuery, RequestHeaders, RequestBody, Response, ErrorResponse> = {
   requestParams: RequestParams
   requestQuery: RequestQuery
+  requestHeaders: RequestHeaders
   requestBody: RequestBody
   response: Response
   error: ErrorResponse
@@ -205,13 +212,13 @@ type TypedRoute<RequestParams, RequestQuery, RequestBody, Response, ErrorRespons
 
 export type RoutesDefinition = {
   get: {
-    '/:cardId': TypedRoute<{cardId: string}, {cardNickname: boolean}, never, [[200, Card]], [[401, HttpError]]>,
+    '/:cardId': TypedRoute<{cardId: string}, {cardNickname: boolean}, {'X-User-Id': string, 'X-Distributor-Id'?: string}, never, [[200, Card]], [[401, HttpError]]>,
   },
   delete: {
-    '/:cardId': TypedRoute<{cardId: string}, {cardNickname: boolean}, never, [[200, Card]], never>,
+    '/:cardId': TypedRoute<{cardId: string}, {cardNickname: boolean}, never, never, [[200, Card]], never>,
   },
   put: {
-    '/:cardId/settings': TypedRoute<{cardId: string}, never, CardSettings, [[204, never]], never>,
+    '/:cardId/settings': TypedRoute<{cardId: string}, never, {'x-forwarded-authorization': string}, CardSettings, [[204, never]], never>,
   },
 }
 `)

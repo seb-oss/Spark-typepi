@@ -3,10 +3,7 @@
   "version": "0.0.2",
   "bin": "bin/generate.js",
   "dependencies": {
-    "glob": "8.0.3",
-    "yargs-parser": "21.1.1"
+    "fast-glob": "3.2.12"
   },
-  "devDependencies": {
-    "@types/glob": "8.0.0"
-  }
+  "devDependencies": {}
 }

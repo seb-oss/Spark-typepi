@@ -29,10 +29,15 @@ const getType = (param: ParameterObject): string => {
   return 'any'
 }
 
+const propName = (name: string): string => {
+  if (name.indexOf('-') === -1) return name
+  return `'${name}'`
+}
+
 const generateProps = (params: Array<ReferenceObject | ParameterObject>, filter: 'query' | 'header' | 'path' | /* V3 */ 'cookie' | /* V2 */ 'formData' | /* V2 */ 'body'): string => {
   const props = (params as ParameterObject[])
     .filter((p) => p.in === filter)
-    .map((p) => `${p.name}: ${getType(p)}`)
+    .map((p) => `${propName(p.name)}${p.required ? '' : '?'}: ${getType(p)}`)
 
   if (props.length) return `{${props.join(', ')}}`
 
@@ -51,7 +56,7 @@ const generateBody = (body: RequestBody): string => {
   return 'never'
 }
 
-const arrString = (arr: any[]): string => `[${arr.filter(i => i).join(', ')}]`
+const arrString = (arr: unknown[]): string => `[${arr.filter(i => i).join(', ')}]`
 
 const generateResponse = (responses: Record<string, ReferenceObject | ResponseObject>, errors = false): string => {
   const responseTypes = Object
@@ -82,6 +87,7 @@ const generateRoutes = (path: string, item: PathItemObject): Route[] => {
       requestBody: generateBody(operation.requestBody as RequestBody),
       requestParams: generateProps(operation.parameters || [], 'path'),
       requestQuery: generateProps(operation.parameters || [], 'query'),
+      requestHeaders: generateProps(operation.parameters || [], 'header'),
       response: generateResponse(operation.responses),
       errorResponse: generateResponse(operation.responses, true),
     } 
