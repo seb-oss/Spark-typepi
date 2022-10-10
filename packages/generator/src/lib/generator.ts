@@ -5,7 +5,7 @@ import { generate as openApiGenerate, OpenAPI3 } from './openapi'
 
 const getSchemas = async (input: string): Promise<Record<string, OpenAPI3>> => {
   const schemas: Record<string, OpenAPI3> = {}
-  
+
   const files = fastGlob.sync(input, { globstar: true, dot: true })
   console.log(input, files)
   for (const file of files) {
@@ -17,22 +17,33 @@ const getSchemas = async (input: string): Promise<Record<string, OpenAPI3>> => {
   return schemas
 }
 
-export const generate = async ({ schema, input, output }): Promise<string | string[] | void> => {
+export const generate = async ({
+  schema,
+  input,
+  output,
+}): Promise<string | string[] | void> => {
   if (schema) return openApiGenerate({ schema })
 
   if (!input) throw new Error('You need to supply at least one schema')
 
   const schemas = await getSchemas(input)
-  const generated = Object.entries(schemas)
-    .map(([name, schema]) => ({ name, schema: openApiGenerate({ schema }) }))
+  const generated = Object.entries(schemas).map(([name, schema]) => ({
+    name,
+    schema: openApiGenerate({ name, schema }),
+  }))
 
   // print result
-  if (!output) return generated.map(({ name, schema }) => `/**
+  if (!output)
+    return generated
+      .map(
+        ({ name, schema }) => `/**
  * ${name}
  */
 ${schema}
-`).join('\n')
-  
+`
+      )
+      .join('\n')
+
   // save files
   await mkdir(output, { recursive: true })
   for (const { name, schema } of generated) {
