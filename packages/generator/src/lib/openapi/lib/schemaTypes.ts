@@ -28,6 +28,18 @@ export const generateTypes = (
   return Object.assign({}, ...types)
 }
 
+const guessType = (schema: SchemaObject) => {
+  if (schema.type) {
+    return schema.type
+  } else if (schema.enum) {
+    return 'string'
+  } else if (schema.properties) {
+    return 'object'
+  } else {
+    return undefined
+  }
+}
+
 export const generateFromSchemaObject = (
   schema: ReferenceObject | SchemaObject
 ): string => {
@@ -38,28 +50,31 @@ export const generateFromSchemaObject = (
     return $ref.substring($ref.lastIndexOf('/') + 1)
   }
 
-  const type = schema.type ?? 'object'
-
+  const type = guessType(schema)
   let schemaString = ''
-  if (type === 'object') {
-    schemaString = generateObject(schema, newLine)
-  } else if (type === 'array') {
-    schemaString = generateFromSchemaObject(schema.items) + '[]'
-  } else {
-    switch (type) {
-      case 'integer':
-        schemaString = 'number'
-        break
-      case 'string': {
-        if (schema.format === 'date-time' || schema.format === 'date') {
-          schemaString = 'Date'
-        } else {
-          schemaString = 'string'
+  if (type) {
+    if (type === 'object') {
+      schemaString = generateObject(schema, newLine)
+    } else if (type === 'array') {
+      schemaString = generateFromSchemaObject(schema.items) + '[]'
+    } else {
+      switch (type) {
+        case 'integer':
+          schemaString = 'number'
+          break
+        case 'string': {
+          if (schema.format === 'date-time' || schema.format === 'date') {
+            schemaString = 'Date'
+          } else if (schema.enum) {
+            schemaString = schema.enum.map((it) => `'${it}'`).join(' | ')
+          } else {
+            schemaString = 'string'
+          }
+          break
         }
-        break
+        default:
+          schemaString = type
       }
-      default:
-        schemaString = type
     }
   }
   if (schema.allOf) {
@@ -110,7 +125,7 @@ const generateObject = (schema: SchemaObject, newLine: string) => {
         acc[key] = current[key]
       }
       return acc
-    })
+    }, {})
   const allProps = Object.entries(properties)
     .map(([name, value]) => {
       return `${value.docs}${name}${value.required ? '' : '?'}: ${value.value}`
