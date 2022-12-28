@@ -100,7 +100,7 @@ export const generateFromSchemaObject = (
       .map((it) => generateFromSchemaObject(it))
       .join(' | ')
     if (oneOfString.length > 0) {
-      schemaString = schemaString + ' | ' + oneOfString
+      schemaString = schemaString + ' & (' + oneOfString + ')'
     }
   }
 
