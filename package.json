@@ -6,7 +6,7 @@
     "build": "nx build",
     "lint": "nx lint",
     "test": "nx test",
-    "generate": "nx build generator && ./dist/packages/generator/bin/generate.js openapi -i ./packages/generator/src/lib/openapi/__tests__/*.json -o ./packages/express-router/src/lib/__tests__/"
+    "generate": "nx build generator && ./dist/packages/generator/bin/generate.js openapi -i ./packages/generator/testdata/* -o ./tmp/generated"
   },
   "private": true,
   "contributors": [
@@ -21,30 +21,31 @@
     "url": "https://github.com/seb-neo/typepi/issues"
   },
   "dependencies": {
-    "tslib": "2.3.0",
-    "prettier": "2.6.2"
+    "prettier": "2.8.4",
+    "tslib": "2.5.0",
+    "yaml": "2.2.1"
   },
   "devDependencies": {
-    "@nrwl/cli": "14.7.17",
-    "@nrwl/eslint-plugin-nx": "14.7.17",
-    "@nrwl/jest": "14.7.17",
-    "@nrwl/js": "14.7.17",
-    "@nrwl/linter": "14.7.17",
-    "@nrwl/node": "14.7.17",
+    "@nrwl/cli": "15.7.2",
+    "@nrwl/eslint-plugin-nx": "15.7.2",
+    "@nrwl/jest": "15.7.2",
+    "@nrwl/js": "15.7.2",
+    "@nrwl/linter": "15.7.2",
+    "@nrwl/node": "15.7.2",
     "@nrwl/nx-cloud": "latest",
-    "@nrwl/workspace": "14.7.17",
-    "@types/jest": "28.1.1",
-    "@types/node": "16.11.7",
-    "@typescript-eslint/eslint-plugin": "^5.36.1",
-    "@typescript-eslint/parser": "^5.36.1",
-    "eslint": "~8.15.0",
-    "eslint-config-prettier": "8.1.0",
-    "jest": "28.1.1",
-    "jest-environment-jsdom": "28.1.1",
-    "nx": "14.7.17",
-    "ts-jest": "28.0.5",
+    "@nrwl/workspace": "15.7.2",
+    "@types/jest": "29.4.0",
+    "@types/node": "18.14.0",
+    "@typescript-eslint/eslint-plugin": "5.53.0",
+    "@typescript-eslint/parser": "5.53.0",
+    "eslint": "8.34.0",
+    "eslint-config-prettier": "8.6.0",
+    "jest": "29.4.3",
+    "jest-environment-jsdom": "29.4.3",
+    "nx": "15.7.2",
+    "ts-jest": "29.0.5",
     "ts-node": "10.9.1",
-    "typescript": "~4.8.2"
+    "typescript": "4.9.5"
   },
   "workspaces": [
     "packages/**"
