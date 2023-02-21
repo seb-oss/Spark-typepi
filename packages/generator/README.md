@@ -1,9 +1,9 @@
 # @typepi/generator
 
-Generates types and route definitions from OpenAPI spec.
+Generates types and route definitions from OpenAPI and AsyncAPI spec.
 
 ## Example
 
 ```zsh
-npx @typepi/generator openapi -i ./schemas -o ./src/schemas
+npx @typepi/generator -i ./schemas -o ./src/schemas
 ```

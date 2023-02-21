@@ -1,0 +1,38 @@
+asyncapi: 2.6.0
+info:
+  title: Placeholder API
+  version: 1.0.0
+channels:
+  channel.A:
+    publish:
+      message:
+        payload:
+          type: string
+  channel.B:
+    publish:
+      message:
+        $ref: '#/components/messages/MessageB'
+  channel.C:
+    subscribe:
+      message:
+        $ref: '#/components/messages/MessageC'
+components:
+  messages:
+    MessageB:
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+          enabled:
+            type: boolean
+    MessageC:
+      payload:
+        type: array
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+            description:
+              type: string

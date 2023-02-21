@@ -12,7 +12,7 @@ interface GenerateResult {
   paths: Route[]
 }
 
-export const prepare = <T>(
+export const prepare = <T extends object>(
   name: string,
   record: Record<string, ReferenceObject | T>
 ): Record<string, T> => {

@@ -2,16 +2,34 @@ import * as fastGlob from 'fast-glob'
 import { readFile, writeFile, mkdir } from 'fs/promises'
 import { parse, join } from 'path'
 import { generate as openApiGenerate, OpenAPI3 } from './openapi'
+import { generate as asyncApiGenerate, AsyncApi } from './asyncapi'
+import { parse as yamlParse } from 'yaml'
 
-const getSchemas = async (input: string): Promise<Record<string, OpenAPI3>> => {
-  const schemas: Record<string, OpenAPI3> = {}
+type ParsedSchemas = {
+  openApi: Record<string, OpenAPI3>
+  asyncApi: Record<string, AsyncApi>
+}
+
+const getSchemas = async (input: string): Promise<ParsedSchemas> => {
+  const schemas: ParsedSchemas = {
+    openApi: {},
+    asyncApi: {},
+  }
 
   const files = fastGlob.sync(input, { globstar: true, dot: true })
-  console.log(input, files)
   for (const file of files) {
     const { name } = parse(file)
     const content = await readFile(file, 'utf-8')
-    schemas[name] = JSON.parse(content)
+    const parsed =
+      file.endsWith('.yaml') || file.endsWith('.yml')
+        ? yamlParse(content)
+        : JSON.parse(content)
+
+    if (parsed['asyncapi']) {
+      schemas.asyncApi[name] = parsed
+    } else {
+      schemas.openApi[name] = parsed
+    }
   }
 
   return schemas
@@ -27,14 +45,24 @@ export const generate = async ({
   if (!input) throw new Error('You need to supply at least one schema')
 
   const schemas = await getSchemas(input)
-  const generated = Object.entries(schemas).map(([name, schema]) => ({
-    name,
-    schema: openApiGenerate({ name, schema }),
-  }))
+  const generatedOpenApi = Object.entries(schemas.openApi).map(
+    ([name, schema]) => ({
+      name,
+      schema: openApiGenerate({ name, schema }),
+    })
+  )
+
+  const generatedAsyncApi = Object.entries(schemas.asyncApi).map(
+    ([name, schema]) => ({
+      name,
+      schema: asyncApiGenerate({ name, schema }),
+    })
+  )
 
   // print result
   if (!output)
-    return generated
+    return generatedOpenApi
+      .concat(generatedAsyncApi)
       .map(
         ({ name, schema }) => `/**
  * ${name}
@@ -46,10 +74,9 @@ ${schema}
 
   // save files
   await mkdir(output, { recursive: true })
-  for (const { name, schema } of generated) {
+  for (const { name, schema } of generatedOpenApi.concat(generatedAsyncApi)) {
     const path = join(output, `${name}.ts`)
     await writeFile(path, schema, 'utf-8')
-    console.log(path)
   }
 
   return
