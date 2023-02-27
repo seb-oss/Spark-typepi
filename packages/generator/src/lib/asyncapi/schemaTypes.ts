@@ -18,11 +18,10 @@ export const generateMessageTypes = (
 ): Record<string, string> => {
   const types = Object.entries(messages).map(([name, message]) => {
     const messageObj = message as MessageObject
-    const doc = generateDocs(messageObj.payload)
     return {
-      [name]: `${doc}export type ${name} = ${generateFromSchemaObject(
+      [`#/components/messages/${name}`]: generateFromSchemaObject(
         messageObj.payload
-      )}`,
+      ),
     }
   })
   return Object.assign({}, ...types)

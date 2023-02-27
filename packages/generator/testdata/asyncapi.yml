@@ -16,16 +16,24 @@ channels:
     subscribe:
       message:
         $ref: '#/components/messages/MessageC'
+  channel.B2:
+    subscribe:
+      message:
+        payload:
+          $ref: '#/components/messages/SchemaB'
 components:
+  schemas:
+    SchemaB:
+      type: object
+      properties:
+        name:
+          type: string
+        enabled:
+          type: boolean
   messages:
     MessageB:
       payload:
-        type: object
-        properties:
-          name:
-            type: string
-          enabled:
-            type: boolean
+        $ref: '#/components/schemas/SchemaB'
     MessageC:
       payload:
         type: array

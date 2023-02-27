@@ -1,7 +1,7 @@
-import { generateMessageTypes } from './schemaTypes'
+import { generateChannels } from './channelsParser'
+import { generateMessageTypes, generateTypes } from './schemaTypes'
 import { AsyncApi, Channel, ReferenceObject } from './types'
 import prettier = require('prettier')
-import { generateChannels } from './channelsParser'
 
 export interface GenerateOptions {
   schema: AsyncApi
@@ -42,11 +42,15 @@ export const prepare = <T extends object>(
 export const generateBaseData = ({
   schema,
 }: GenerateOptions): GenerateResult => {
-  const types = schema.components?.messages
+  const messages = schema.components?.messages
     ? generateMessageTypes(schema.components.messages)
     : {}
 
-  const channels = generateChannels(schema.channels)
+  const types = schema.components?.schemas
+    ? generateTypes(schema.components.schemas)
+    : {}
+
+  const channels = generateChannels(schema.channels, messages)
 
   return { types, channels }
 }
