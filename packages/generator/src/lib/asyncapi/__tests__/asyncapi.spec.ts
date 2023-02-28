@@ -38,7 +38,7 @@ describe('schema', () => {
        enabled?: boolean
      }
      
-     export type Placeholder_APIChannels = {
+     export type PlaceholderAPIChannels = {
        "channel.A": string
      
        "channel.B": SchemaB
