@@ -1,6 +1,9 @@
 /* eslint-disable max-lines */
 export interface AsyncApi {
   asyncapi: string // required
+  info?: {
+    title?: string
+  }
   channels?: Record<string, ChannelItemObject> // required
   components?: {
     schemas?: Record<string, ReferenceObject | SchemaObject>

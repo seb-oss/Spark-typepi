@@ -24,7 +24,7 @@ describe('schema', () => {
   })
   describe('generate', () => {
     it('generates a correct document', () => {
-      const generated = generate({ schema, name: 'Asyncapi' })
+      const generated = generate({ schema })
       const expected = `/**
       * This file was auto-generated.
       * Do not make direct changes to the file.
@@ -33,23 +33,23 @@ describe('schema', () => {
      /* tslint:disable */
      /* eslint-disable */
      
-     export type MessageB = {
+     export type SchemaB = {
        name?: string
        enabled?: boolean
      }
      
-     export type MessageC = {
-       name?: string
-       description?: string
-     }[]
-     
-     export type AsyncapiChannels = {
+     export type Placeholder_APIChannels = {
        "channel.A": string
      
-       "channel.B": MessageB
+       "channel.B": SchemaB
      
-       "channel.C": MessageC
-     }
+       "channel.C": {
+         name?: string
+         description?: string
+       }[]
+     
+       "channel.B2": SchemaB
+     }     
      
 `
       expect(format(generated)).toEqual(format(expected))

@@ -48,14 +48,14 @@ export const generate = async ({
   const generatedOpenApi = Object.entries(schemas.openApi).map(
     ([name, schema]) => ({
       name,
-      schema: openApiGenerate({ name, schema }),
+      schema: openApiGenerate({ schema }),
     })
   )
 
   const generatedAsyncApi = Object.entries(schemas.asyncApi).map(
     ([name, schema]) => ({
       name,
-      schema: asyncApiGenerate({ name, schema }),
+      schema: asyncApiGenerate({ schema }),
     })
   )
 

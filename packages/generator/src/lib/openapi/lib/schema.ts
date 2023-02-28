@@ -1,3 +1,4 @@
+import { formatTitle } from '../../format'
 import { pathGenerator } from './paths'
 import { generateTypes } from './schemaTypes'
 import { OpenAPI3, ReferenceObject, Route, RoutesDefinition } from './types'
@@ -102,12 +103,11 @@ const typedRoute = `type TypedRoute<RequestParams, RequestQuery, RequestHeaders,
   error: ErrorResponse
 }`
 
-export const generate = ({
-  schema,
-  name,
-}: GenerateOptions & { name?: string }): string => {
+export const generate = ({ schema }: GenerateOptions): string => {
   const data = generateBaseData({ schema })
   const rows: string[] = [header]
+
+  const title = formatTitle(schema.info?.title ?? '')
 
   // types
   Object.values(data.types).forEach((type) => rows.push(type))
@@ -115,9 +115,8 @@ export const generate = ({
   // routes
   const map = generateRoutesDefinition(data.paths)
   rows.push(typedRoute)
-  const exportRoutesDef = name ? '' : 'export '
   rows.push(
-    `${exportRoutesDef}type RoutesDefinition = {
+    `export type ${title}RoutesDefinition = {
 ${Object.entries(map)
   .map(
     ([method, routes]) =>
@@ -132,23 +131,8 @@ ${Object.entries(routes)
 `
   )
 
-  if (name) {
-    const formattedName = capitalize(name)
-    rows.push(`export { RoutesDefinition as ${formattedName}RoutesDefinition }`)
-  }
-
   return prettier.format(rows.join('\n\n'), {
     parser: 'typescript',
     semi: false,
   })
-}
-
-const capitalize = (str: string) => {
-  if (!str || str.length === 0) {
-    return str
-  }
-  if (str.length === 1) {
-    return str.charAt(0)
-  }
-  return str.charAt(0).toUpperCase() + str.slice(1)
 }

@@ -236,7 +236,7 @@ type TypedRoute<RequestParams, RequestQuery, RequestHeaders, RequestBody, Respon
   error: ErrorResponse
 }
 
-export type RoutesDefinition = {
+export type Cards_APIRoutesDefinition = {
   get: {
     '/:cardId': TypedRoute<{cardId: string}, {cardNickname: boolean}, {'X-User-Id': string, 'X-Distributor-Id'?: string}, never, [200, Card], [401, HttpError]>,
   },

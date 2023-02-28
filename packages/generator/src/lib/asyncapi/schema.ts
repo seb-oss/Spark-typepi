@@ -2,6 +2,7 @@ import { generateChannels } from './channelsParser'
 import { generateMessageTypes, generateTypes } from './schemaTypes'
 import { AsyncApi, Channel, ReferenceObject } from './types'
 import prettier = require('prettier')
+import { formatTitle } from '../format'
 
 export interface GenerateOptions {
   schema: AsyncApi
@@ -63,17 +64,16 @@ const header = `/**
 /* tslint:disable */
 /* eslint-disable */`
 
-export const generate = ({
-  schema,
-  name,
-}: GenerateOptions & { name?: string }): string => {
+export const generate = ({ schema }: GenerateOptions): string => {
   const data = generateBaseData({ schema })
   const rows: string[] = [header]
+
+  const title = formatTitle(schema.info?.title ?? '')
 
   // types
   Object.values(data.types).forEach((type) => rows.push(type))
 
-  rows.push(`export type ${capitalize(name)}Channels = {`)
+  rows.push(`export type ${title}Channels = {`)
   data.channels.forEach((channel) => {
     rows.push(`  '${channel.name}': ${channel.type},`)
   })
@@ -83,14 +83,4 @@ export const generate = ({
     parser: 'typescript',
     semi: false,
   })
-}
-
-const capitalize = (str: string) => {
-  if (!str || str.length === 0) {
-    return str
-  }
-  if (str.length === 1) {
-    return str.charAt(0)
-  }
-  return str.charAt(0).toUpperCase() + str.slice(1)
 }

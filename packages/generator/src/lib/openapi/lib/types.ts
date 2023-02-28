@@ -1,6 +1,9 @@
 /* eslint-disable max-lines */
 export interface OpenAPI3 {
   openapi: string // required
+  info?: {
+    title?: string
+  }
   paths?: Record<string, PathItemObject> // required
   components?: {
     schemas?: Record<string, ReferenceObject | SchemaObject>
