@@ -3,7 +3,7 @@ import {
   generate,
   generateBaseData,
   generateRoutesDefinition,
-} from '../lib/schema'
+} from '../lib/openapiGenerator'
 import { OpenAPI3 } from '../lib/types'
 
 import prettier = require('prettier')

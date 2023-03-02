@@ -1,19 +1,25 @@
-import { generateFromSchemaObject } from './schemaTypes'
+import { generateFromSchemaObject } from '../shared/schemaParser'
+import { AddImportFn, Import } from '../shared/types'
 import { Channel, ChannelItemObject, ReferenceObject } from './types'
 
 export const generateChannels = (
   channels: Record<string, ChannelItemObject>,
   messageRefToTypeString: Record<string, string>
-): Channel[] => {
-  return Object.entries(channels).map(([name, channel]) =>
-    generateChannel(name, channel, messageRefToTypeString)
+): [Channel[], Import[]] => {
+  const imports = [] as Import[]
+  const generatedChannels = Object.entries(channels).map(([name, channel]) =>
+    generateChannel(name, channel, messageRefToTypeString, (i) =>
+      imports.push(i)
+    )
   )
+  return [generatedChannels, imports]
 }
 
 const generateChannel = (
   name: string,
   channel: ChannelItemObject,
-  messageRefToTypeString: Record<string, string>
+  messageRefToTypeString: Record<string, string>,
+  addImport: AddImportFn
 ): Channel => {
   const messageToUse = channel.publish?.message ?? channel.subscribe?.message
 
@@ -27,6 +33,6 @@ const generateChannel = (
 
   return {
     name,
-    type: generateFromSchemaObject(messageToUse?.payload),
+    type: generateFromSchemaObject(messageToUse?.payload, addImport),
   }
 }

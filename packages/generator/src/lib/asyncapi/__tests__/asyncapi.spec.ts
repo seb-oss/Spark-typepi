@@ -32,6 +32,8 @@ describe('schema', () => {
      
      /* tslint:disable */
      /* eslint-disable */
+
+     import { SharedSchema } from "./sharedtypes"
      
      export type SchemaB = {
        name?: string
@@ -49,6 +51,8 @@ describe('schema', () => {
        }[]
      
        "channel.B2": SchemaB
+
+       "channel.shared.type": SharedSchema
      }     
      
 `

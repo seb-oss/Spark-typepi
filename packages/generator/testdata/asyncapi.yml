@@ -21,6 +21,11 @@ channels:
       message:
         payload:
           $ref: '#/components/messages/SchemaB'
+  channel.shared.type:
+    subscribe:
+      message:
+        payload:
+          $ref: 'sharedtypes.yml#/components/messages/SharedSchema'
 components:
   schemas:
     SchemaB:

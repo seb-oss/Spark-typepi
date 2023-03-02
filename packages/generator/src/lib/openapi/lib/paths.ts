@@ -1,13 +1,15 @@
-import { generateFromSchemaObject } from './schemaTypes'
+import {
+  generateFromSchemaObject,
+  parseRefString,
+} from '../../shared/schemaParser'
+import { AddImportFn, Import, ReferenceObject } from '../../shared/types'
 import {
   HttpVerb,
   ParameterObject,
   PathItemObject,
-  ReferenceObject,
   RequestBody,
   ResponseObject,
   Route,
-  SchemaObject,
 } from './types'
 
 export const pathGenerator = (
@@ -16,15 +18,14 @@ export const pathGenerator = (
   const expressifyPath = (path: string): string =>
     path.replace(/{/g, ':').replace(/}/g, '')
 
-  const parseRef = ({ $ref }: ReferenceObject): string => {
-    return $ref.substring($ref.lastIndexOf('/') + 1)
-  }
-
-  const parseResponse = (response: ResponseObject): string => {
+  const parseResponse = (
+    response: ResponseObject,
+    addImports: AddImportFn
+  ): string => {
     const schema = response.content?.['application/json']?.schema
 
     if (!schema) return ''
-    return generateFromSchemaObject(schema)
+    return generateFromSchemaObject(schema, addImports)
   }
 
   const getType = (param: ParameterObject): string => {
@@ -66,11 +67,11 @@ export const pathGenerator = (
     return 'never'
   }
 
-  const generateBody = (body: RequestBody): string => {
+  const generateBody = (body: RequestBody, addImport: AddImportFn): string => {
     if (body?.content?.['application/json']) {
       const content = body.content['application/json']?.schema
 
-      return generateFromSchemaObject(content)
+      return generateFromSchemaObject(content, addImport)
     }
 
     return 'never'
@@ -84,17 +85,19 @@ export const pathGenerator = (
 
   const generateResponse = (
     responses: Record<string, ReferenceObject | ResponseObject>,
+    addImport: AddImportFn,
     errors = false
   ): string => {
     const responseTypes = Object.entries(responses)
       .map(([strCode, response]) => {
         const code = parseInt(strCode, 10)
         if (code >= 400 !== errors) return
-        if ('$ref' in response) return [code, parseRef(response)]
+        if ('$ref' in response)
+          return [code, parseRefString(response.$ref, addImport)]
 
         return arrString([
           code,
-          parseResponse(response as ResponseObject) || 'void',
+          parseResponse(response as ResponseObject, addImport) || 'void',
         ])
       })
       .filter((r) => r)
@@ -103,7 +106,11 @@ export const pathGenerator = (
     return 'never'
   }
 
-  const generateRoutes = (path: string, item: PathItemObject): Route[] => {
+  const generateRoutes = (
+    path: string,
+    item: PathItemObject,
+    addImport: AddImportFn
+  ): Route[] => {
     const verbs: HttpVerb[] = ['get', 'post', 'put', 'patch', 'delete']
 
     const routes: Array<Route | undefined> = verbs.map((verb) => {
@@ -113,22 +120,30 @@ export const pathGenerator = (
       return {
         url: expressifyPath(path),
         method: verb,
-        requestBody: generateBody(operation.requestBody as RequestBody),
+        requestBody: generateBody(
+          operation.requestBody as RequestBody,
+          addImport
+        ),
         requestParams: generateProps(operation.parameters || [], 'path'),
         requestQuery: generateProps(operation.parameters || [], 'query'),
         requestHeaders: generateProps(operation.parameters || [], 'header'),
-        response: generateResponse(operation.responses),
-        errorResponse: generateResponse(operation.responses, true),
+        response: generateResponse(operation.responses, addImport),
+        errorResponse: generateResponse(operation.responses, addImport, true),
       }
     })
 
     return routes.filter((r) => r)
   }
 
-  const generatePaths = (paths: Record<string, PathItemObject>): Route[] => {
-    return Object.entries(paths).flatMap(([path, item]) =>
-      generateRoutes(path, item)
+  const generatePaths = (
+    paths: Record<string, PathItemObject>
+  ): [Route[], Import[]] => {
+    const imports = [] as Import[]
+    const routes = Object.entries(paths).flatMap(([path, item]) =>
+      generateRoutes(path, item, (imp) => imports.push(imp))
     )
+
+    return [routes, imports]
   }
 
   return {

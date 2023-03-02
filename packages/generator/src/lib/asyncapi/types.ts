@@ -1,3 +1,5 @@
+import { SchemaObject } from '../shared/types'
+
 /* eslint-disable max-lines */
 export interface AsyncApi {
   asyncapi: string // required
@@ -93,23 +95,6 @@ export interface RequestBody {
   content?: {
     [contentType: string]: { schema: ReferenceObject | SchemaObject }
   }
-}
-
-export interface SchemaObject {
-  title?: string // ignored
-  description?: string
-  required?: string[]
-  enum?: string[]
-  type?: string // assumed "object" if missing
-  items?: ReferenceObject | SchemaObject
-  allOf?: (ReferenceObject | SchemaObject)[]
-  properties?: Record<string, ReferenceObject | SchemaObject>
-  default?: unknown
-  additionalProperties?: boolean | ReferenceObject | SchemaObject
-  nullable?: boolean // V3 ONLY
-  oneOf?: (ReferenceObject | SchemaObject)[] // V3 ONLY
-  anyOf?: (ReferenceObject | SchemaObject)[] // V3 ONLY
-  format?: string // V3 ONLY
 }
 
 export type SchemaFormatter = (schemaObj: SchemaObject) => string | undefined

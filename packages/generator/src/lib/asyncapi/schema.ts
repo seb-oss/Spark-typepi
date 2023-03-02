@@ -1,8 +1,9 @@
-import { generateChannels } from './channelsParser'
-import { generateMessageTypes, generateTypes } from './schemaTypes'
-import { AsyncApi, Channel, ReferenceObject } from './types'
-import prettier = require('prettier')
 import { formatTitle } from '../format'
+import { generateFromSchemaObject, generateTypes } from '../shared/schemaParser'
+import { Import } from '../shared/types'
+import { generateChannels } from './channelsParser'
+import { AsyncApi, Channel, MessageObject, ReferenceObject } from './types'
+import prettier = require('prettier')
 
 export interface GenerateOptions {
   schema: AsyncApi
@@ -11,6 +12,7 @@ export interface GenerateOptions {
 interface GenerateResult {
   types: Record<string, string>
   channels: Channel[]
+  imports: Import[]
 }
 
 export const prepare = <T extends object>(
@@ -43,17 +45,24 @@ export const prepare = <T extends object>(
 export const generateBaseData = ({
   schema,
 }: GenerateOptions): GenerateResult => {
-  const messages = schema.components?.messages
+  const [messages, importsFromMessages] = schema.components?.messages
     ? generateMessageTypes(schema.components.messages)
-    : {}
+    : [{}, []]
 
-  const types = schema.components?.schemas
+  const [types, importsFromTypes] = schema.components?.schemas
     ? generateTypes(schema.components.schemas)
-    : {}
+    : [{}, []]
 
-  const channels = generateChannels(schema.channels, messages)
+  const [channels, importsFromChannels] = generateChannels(
+    schema.channels,
+    messages
+  )
 
-  return { types, channels }
+  const allImports = importsFromMessages
+    .concat(importsFromTypes)
+    .concat(importsFromChannels)
+
+  return { types, channels, imports: allImports }
 }
 
 const header = `/**
@@ -70,8 +79,19 @@ export const generate = ({ schema }: GenerateOptions): string => {
 
   const title = formatTitle(schema.info?.title ?? '')
 
+  const imports = data.imports
+  const importsMap = imports.reduce((map, it) => {
+    if (!map[it.file]) map[it.file] = []
+    map[it.file].push(it.type)
+    return map
+  }, {} as Record<string, string[]>)
+
+  Object.entries(importsMap).forEach(([file, types]) => {
+    rows.push(`import { ${types.join(', ')} } from './${file}'`)
+  })
+
   // types
-  Object.values(data.types).forEach((type) => rows.push(type))
+  Object.values(data.types).forEach((entry) => rows.push(entry))
 
   rows.push(`export type ${title}Channels = {`)
   data.channels.forEach((channel) => {
@@ -83,4 +103,20 @@ export const generate = ({ schema }: GenerateOptions): string => {
     parser: 'typescript',
     semi: false,
   })
+}
+
+const generateMessageTypes = (
+  messages: Record<string, ReferenceObject | MessageObject>
+): [Record<string, string>, Import[]] => {
+  const imports = [] as Import[]
+  const types = Object.entries(messages).map(([name, message]) => {
+    const messageObj = message as MessageObject
+    return {
+      [`#/components/messages/${name}`]: generateFromSchemaObject(
+        messageObj.payload,
+        (i) => imports.push(i)
+      ),
+    }
+  })
+  return [Object.assign({}, ...types), imports]
 }

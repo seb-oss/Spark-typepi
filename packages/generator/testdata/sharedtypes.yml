@@ -1,0 +1,8 @@
+schemas:
+  SharedSchema:
+    type: object
+    properties:
+      shared:
+        type: string
+      schema:
+        type: boolean

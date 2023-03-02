@@ -1,7 +1,8 @@
 import { formatTitle } from '../../format'
+import { generateTypes } from '../../shared/schemaParser'
+import { Import, ReferenceObject } from '../../shared/types'
 import { pathGenerator } from './paths'
-import { generateTypes } from './schemaTypes'
-import { OpenAPI3, ReferenceObject, Route, RoutesDefinition } from './types'
+import { OpenAPI3, Route, RoutesDefinition } from './types'
 import prettier = require('prettier')
 
 export interface GenerateOptions {
@@ -11,6 +12,7 @@ export interface GenerateOptions {
 interface GenerateResult {
   types: Record<string, string>
   paths: Route[]
+  imports: Import[]
 }
 
 export const prepare = <T extends object>(
@@ -43,9 +45,9 @@ export const prepare = <T extends object>(
 export const generateBaseData = ({
   schema,
 }: GenerateOptions): GenerateResult => {
-  const types = schema.components?.schemas
+  const [types, importsFromTypes] = schema.components?.schemas
     ? generateTypes(schema.components.schemas)
-    : {}
+    : [{}, []]
 
   const parameters = prepare('parameters', schema.components?.parameters)
   // const responses = prepare('responses', schema.components?.responses)
@@ -54,9 +56,13 @@ export const generateBaseData = ({
   //   schema.components?.requestBodies
   // )
 
-  const paths = pathGenerator(parameters).generate(schema.paths)
+  const [paths, importsFromPaths] = pathGenerator(parameters).generate(
+    schema.paths
+  )
 
-  return { types, paths }
+  const imports = importsFromTypes.concat(importsFromPaths)
+
+  return { types, paths, imports }
 }
 
 export const generateRoutesDefinition = (routes: Route[]): RoutesDefinition => {
@@ -107,10 +113,21 @@ export const generate = ({ schema }: GenerateOptions): string => {
   const data = generateBaseData({ schema })
   const rows: string[] = [header]
 
+  const imports = data.imports
+  const importsMap = imports.reduce((map, it) => {
+    if (!map[it.file]) map[it.file] = []
+    map[it.file].push(it.type)
+    return map
+  }, {} as Record<string, string[]>)
+
+  Object.entries(importsMap).forEach(([file, types]) => {
+    rows.push(`import { ${types.join(', ')} } from './${file}'`)
+  })
+
   const title = formatTitle(schema.info?.title ?? '')
 
   // types
-  Object.values(data.types).forEach((type) => rows.push(type))
+  Object.values(data.types).forEach((entry) => rows.push(entry))
 
   // routes
   const map = generateRoutesDefinition(data.paths)

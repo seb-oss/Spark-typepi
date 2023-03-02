@@ -1,19 +1,23 @@
 import * as fastGlob from 'fast-glob'
-import { readFile, writeFile, mkdir } from 'fs/promises'
-import { parse, join } from 'path'
-import { generate as openApiGenerate, OpenAPI3 } from './openapi'
-import { generate as asyncApiGenerate, AsyncApi } from './asyncapi'
+import { mkdir, readFile, writeFile } from 'fs/promises'
+import { join, parse } from 'path'
 import { parse as yamlParse } from 'yaml'
+import { AsyncApi, generate as asyncApiGenerate } from './asyncapi'
+import { generate as openApiGenerate, OpenAPI3 } from './openapi'
+import { generateSchemas } from './shared/schemaGenerator'
+import { Schemas } from './shared/types'
 
 type ParsedSchemas = {
   openApi: Record<string, OpenAPI3>
   asyncApi: Record<string, AsyncApi>
+  sharedTypes: Record<string, Schemas>
 }
 
 const getSchemas = async (input: string): Promise<ParsedSchemas> => {
   const schemas: ParsedSchemas = {
     openApi: {},
     asyncApi: {},
+    sharedTypes: {},
   }
 
   const files = fastGlob.sync(input, { globstar: true, dot: true })
@@ -27,8 +31,10 @@ const getSchemas = async (input: string): Promise<ParsedSchemas> => {
 
     if (parsed['asyncapi']) {
       schemas.asyncApi[name] = parsed
-    } else {
+    } else if (parsed['openapi']) {
       schemas.openApi[name] = parsed
+    } else if (parsed['schemas']) {
+      schemas.sharedTypes[name] = parsed
     }
   }
 
@@ -59,10 +65,18 @@ export const generate = async ({
     })
   )
 
+  const generatedSharedTypes = Object.entries(schemas.sharedTypes).map(
+    ([name, schema]) => ({
+      name,
+      schema: generateSchemas({ schema }),
+    })
+  )
+
   // print result
   if (!output)
     return generatedOpenApi
       .concat(generatedAsyncApi)
+      .concat(generatedSharedTypes)
       .map(
         ({ name, schema }) => `/**
  * ${name}
@@ -74,7 +88,9 @@ ${schema}
 
   // save files
   await mkdir(output, { recursive: true })
-  for (const { name, schema } of generatedOpenApi.concat(generatedAsyncApi)) {
+  for (const { name, schema } of generatedOpenApi
+    .concat(generatedAsyncApi)
+    .concat(generatedSharedTypes)) {
     const path = join(output, `${name}.ts`)
     await writeFile(path, schema, 'utf-8')
   }
