@@ -1,12 +1,12 @@
-import { ReferenceObject, SchemaObject } from '../../shared/types'
+import { ReferenceObject, SchemaObject } from '../shared/schema'
 
 /* eslint-disable max-lines */
-export interface OpenAPI3 {
-  openapi: string // required
+export interface AsyncApi {
+  asyncapi: string // required
   info?: {
     title?: string
   }
-  paths?: Record<string, PathItemObject> // required
+  channels?: Record<string, ChannelItemObject> // required
   components?: {
     schemas?: Record<string, ReferenceObject | SchemaObject>
     responses?: Record<string, ReferenceObject | ResponseObject>
@@ -14,7 +14,21 @@ export interface OpenAPI3 {
     requestBodies?: Record<string, ReferenceObject | RequestBody>
     headers?: Record<string, ReferenceObject | HeaderObject>
     links?: Record<string, ReferenceObject | LinkObject>
+    messages?: Record<string, ReferenceObject | MessageObject>
   }
+}
+
+export type ChannelItemObject = {
+  publish?: {
+    message: ReferenceObject | MessageObject
+  }
+  subscribe?: {
+    message: ReferenceObject | MessageObject
+  }
+}
+
+export type MessageObject = {
+  payload: SchemaObject
 }
 
 export type Headers = Record<string, string>
@@ -25,21 +39,6 @@ export interface HeaderObject {
   description?: string
   required?: boolean
   schema: ReferenceObject | SchemaObject
-}
-
-export interface PathItemObject {
-  $ref?: string
-  summary?: string
-  description?: string
-  get?: OperationObject
-  put?: OperationObject
-  post?: OperationObject
-  delete?: OperationObject
-  options?: OperationObject
-  head?: OperationObject
-  patch?: OperationObject
-  trace?: OperationObject // V3 ONLY
-  parameters?: (ReferenceObject | ParameterObject)[]
 }
 
 export interface LinkObject {
@@ -174,17 +173,3 @@ export interface GlobalContext {
   supportArrayLength?: boolean
   version: number
 }
-
-export type HttpVerb = 'get' | 'post' | 'put' | 'patch' | 'delete'
-export interface Route {
-  url: string
-  method: HttpVerb
-  requestParams: string
-  requestQuery: string
-  requestHeaders: string
-  requestBody: string
-  response: string
-  errorResponse: string
-}
-
-export type RoutesDefinition = Partial<Record<HttpVerb, Record<string, string>>>

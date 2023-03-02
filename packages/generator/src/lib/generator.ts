@@ -3,14 +3,13 @@ import { mkdir, readFile, writeFile } from 'fs/promises'
 import { join, parse } from 'path'
 import { parse as yamlParse } from 'yaml'
 import { AsyncApi, generate as asyncApiGenerate } from './asyncapi'
-import { generate as openApiGenerate, OpenAPI3 } from './openapi'
-import { generateSchemas } from './shared/schemaGenerator'
-import { Schemas } from './shared/types'
+import { generateOpenApi, OpenAPI3 } from './openapi'
+import { Components, generateSchemas } from './shared/schema'
 
 type ParsedSchemas = {
   openApi: Record<string, OpenAPI3>
   asyncApi: Record<string, AsyncApi>
-  sharedTypes: Record<string, Schemas>
+  sharedTypes: Record<string, Components>
 }
 
 const getSchemas = async (input: string): Promise<ParsedSchemas> => {
@@ -33,7 +32,7 @@ const getSchemas = async (input: string): Promise<ParsedSchemas> => {
       schemas.asyncApi[name] = parsed
     } else if (parsed['openapi']) {
       schemas.openApi[name] = parsed
-    } else if (parsed['schemas']) {
+    } else if (parsed['components']) {
       schemas.sharedTypes[name] = parsed
     }
   }
@@ -42,33 +41,31 @@ const getSchemas = async (input: string): Promise<ParsedSchemas> => {
 }
 
 export const generate = async ({
-  schema,
   input,
   output,
 }): Promise<string | string[] | void> => {
-  if (schema) return openApiGenerate({ schema })
-
   if (!input) throw new Error('You need to supply at least one schema')
 
   const schemas = await getSchemas(input)
+
   const generatedOpenApi = Object.entries(schemas.openApi).map(
     ([name, schema]) => ({
       name,
-      schema: openApiGenerate({ schema }),
+      schema: generateOpenApi(schema),
     })
   )
 
   const generatedAsyncApi = Object.entries(schemas.asyncApi).map(
     ([name, schema]) => ({
       name,
-      schema: asyncApiGenerate({ schema }),
+      schema: asyncApiGenerate(schema),
     })
   )
 
   const generatedSharedTypes = Object.entries(schemas.sharedTypes).map(
     ([name, schema]) => ({
       name,
-      schema: generateSchemas({ schema }),
+      schema: generateSchemas(schema),
     })
   )
 

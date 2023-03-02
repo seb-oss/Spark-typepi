@@ -1,16 +1,16 @@
+import { HttpVerb, Route } from './types'
 import {
-  generateFromSchemaObject,
-  parseRefString,
-} from '../../shared/schemaParser'
-import { AddImportFn, Import, ReferenceObject } from '../../shared/types'
-import {
-  HttpVerb,
   ParameterObject,
   PathItemObject,
   RequestBody,
   ResponseObject,
-  Route,
-} from './types'
+} from './specification'
+import { AddImportFn, Import } from '../shared/imports'
+import {
+  generateFromSchemaObject,
+  ReferenceObject,
+  parseRefString,
+} from '../shared/schema'
 
 export const pathGenerator = (
   globalParameters: Record<string, ParameterObject>

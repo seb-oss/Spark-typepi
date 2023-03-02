@@ -1,17 +1,8 @@
 /* eslint-disable complexity */
-import { AddImportFn, Import, ReferenceObject, SchemaObject } from './types'
-
-const generateDocs = (prop: SchemaObject | ReferenceObject): string => {
-  if ('description' in prop) {
-    const schema = prop as SchemaObject
-    return `/**
-* ${schema.description}
- */
-`
-  } else {
-    return ''
-  }
-}
+import { AddImportFn, Import } from '../imports'
+import { formatProperties } from './format'
+import { ReferenceObject, SchemaObject } from './specification'
+import { ParsedProperty, ParsedType } from './types'
 
 export const parseRefString = (refString: string, addImport: AddImportFn) => {
   const [file, rest] = refString.split('#')
@@ -23,23 +14,21 @@ export const parseRefString = (refString: string, addImport: AddImportFn) => {
   return typeName
 }
 
-export const generateTypes = (
+export const parseTypes = (
   schemas: Record<string, ReferenceObject | SchemaObject>
-): [Record<string, string>, Import[]] => {
+): [ParsedType[], Import[]] => {
   const imports = [] as Import[]
   const types = Object.entries(schemas).map(([name, schema]) => {
     const schemaObj = schema as SchemaObject
-    const doc = generateDocs(schemaObj)
     return {
-      [name]: `${doc}export type ${name} = ${generateFromSchemaObject(
-        schemaObj,
-        (importData) => {
-          imports.push(importData)
-        }
-      )}`,
+      name,
+      type: generateFromSchemaObject(schemaObj, (importData) => {
+        imports.push(importData)
+      }),
+      description: schemaObj.description,
     }
   })
-  return [types.reduce((acc, cur) => ({ ...acc, ...cur }), {}), imports]
+  return [types, imports]
 }
 
 const guessType = (schema: SchemaObject) => {
@@ -58,8 +47,6 @@ export const generateFromSchemaObject = (
   schema: ReferenceObject | SchemaObject,
   addImport: AddImportFn
 ): string => {
-  const newLine = `\n`
-
   if ('$ref' in schema) {
     const { $ref } = schema as ReferenceObject
     return parseRefString($ref, addImport)
@@ -69,7 +56,7 @@ export const generateFromSchemaObject = (
   let schemaString = ''
   if (type) {
     if (type === 'object') {
-      schemaString = generateObject(schema, newLine, addImport)
+      schemaString = generateObject(schema, addImport)
     } else if (type === 'array') {
       schemaString = generateFromSchemaObject(schema.items, addImport) + '[]'
     } else {
@@ -122,20 +109,16 @@ export const generateFromSchemaObject = (
   return schemaString
 }
 
-const generateObject = (
-  schema: SchemaObject,
-  newLine: string,
-  addImport: AddImportFn
-) => {
+const generateObject = (schema: SchemaObject, addImport: AddImportFn) => {
   const requiredFields = schema.required ?? []
-  const properties: Record<
-    string,
-    { value: string; required: boolean; docs: string }
-  > = Object.entries(schema.properties ?? [])
+  const properties: Record<string, ParsedProperty> = Object.entries(
+    schema.properties ?? []
+  )
     .map(([name, schema]) => ({
       [name]: {
+        name,
         value: generateFromSchemaObject(schema, addImport),
-        docs: generateDocs(schema),
+        description: schema['description'],
         required: requiredFields.includes(name),
       },
     }))
@@ -145,10 +128,5 @@ const generateObject = (
       }
       return acc
     }, {})
-  const allProps = Object.entries(properties)
-    .map(([name, value]) => {
-      return `${value.docs}${name}${value.required ? '' : '?'}: ${value.value}`
-    })
-    .join(`${newLine}`)
-  return `{${newLine}${allProps}${newLine}}`
+  return formatProperties(Object.values(properties))
 }

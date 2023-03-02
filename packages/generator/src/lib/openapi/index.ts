@@ -1,2 +1,2 @@
-export { generate, GenerateOptions } from './lib/openapiGenerator'
-export { OpenAPI3 } from './lib/types'
+export { generateOpenApi } from './generator'
+export { OpenAPI3 } from './specification'

@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs'
 import { parse } from 'yaml'
-import { generate } from '../schema'
-import { AsyncApi } from '../types'
+import { generate } from '../generator'
+import { AsyncApi } from '../specification'
 
 import prettier = require('prettier')
 
@@ -24,7 +24,7 @@ describe('schema', () => {
   })
   describe('generate', () => {
     it('generates a correct document', () => {
-      const generated = generate({ schema })
+      const generated = generate(schema)
       const expected = `/**
       * This file was auto-generated.
       * Do not make direct changes to the file.
@@ -35,20 +35,14 @@ describe('schema', () => {
 
      import { SharedSchema } from "./sharedtypes"
      
-     export type SchemaB = {
-       name?: string
-       enabled?: boolean
-     }
+     export type SchemaB = { name?: string; enabled?: boolean }
      
      export type PlaceholderAPIChannels = {
        "channel.A": string
      
        "channel.B": SchemaB
      
-       "channel.C": {
-         name?: string
-         description?: string
-       }[]
+       "channel.C": { name?: string; description?: string }[]
      
        "channel.B2": SchemaB
 

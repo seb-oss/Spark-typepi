@@ -1,7 +1,3 @@
-export type Schemas = {
-  schemas: Record<string, ReferenceObject | SchemaObject>
-}
-
 export type ReferenceObject = { $ref: string }
 
 export interface SchemaObject {
@@ -20,6 +16,3 @@ export interface SchemaObject {
   anyOf?: (ReferenceObject | SchemaObject)[] // V3 ONLY
   format?: string // V3 ONLY
 }
-
-export type Import = { file: string; type: string }
-export type AddImportFn = (importToAdd: Import) => void

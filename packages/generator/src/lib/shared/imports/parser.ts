@@ -1,4 +1,4 @@
-import { ReferenceObject, SchemaObject } from './types'
+import { ReferenceObject, SchemaObject } from '../schema'
 
 export const generateImports = (
   schemas: (SchemaObject | ReferenceObject)[]
