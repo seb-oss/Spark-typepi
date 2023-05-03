@@ -1,4 +1,5 @@
 {
+  "name": "generator",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/generator/src",
   "projectType": "library",
@@ -11,7 +12,7 @@
       }
     },
     "build": {
-      "executor": "@nrwl/js:tsc",
+      "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/packages/generator",
@@ -27,14 +28,14 @@
       "dependsOn": ["syncPackage"]
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
+      "executor": "@nx/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": ["packages/generator/**/*.ts"]
       }
     },
     "test": {
-      "executor": "@nrwl/jest:jest",
+      "executor": "@nx/jest:jest",
       "outputs": ["coverage/packages/generator"],
       "options": {
         "jestConfig": "packages/generator/jest.config.ts",
