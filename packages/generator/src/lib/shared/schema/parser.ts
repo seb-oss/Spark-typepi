@@ -1,12 +1,12 @@
 /* eslint-disable complexity */
 import { AddImportFn, Import } from '../imports'
-import { formatProperties } from './format'
+import { formatProperties, formatTypeName } from './format'
 import { ReferenceObject, SchemaObject } from './specification'
 import { ParsedProperty, ParsedType } from './types'
 
 export const parseRefString = (refString: string, addImport: AddImportFn) => {
   const [file, rest] = refString.split('#')
-  const typeName = rest.substring(rest.lastIndexOf('/') + 1)
+  const typeName = formatTypeName(rest.substring(rest.lastIndexOf('/') + 1))
   if (file && file.length > 0) {
     const [fileName] = file.split('.')
     addImport({ file: fileName, type: typeName })
@@ -21,7 +21,7 @@ export const parseTypes = (
   const types = Object.entries(schemas).map(([name, schema]) => {
     const schemaObj = schema as SchemaObject
     return {
-      name,
+      name: formatTypeName(name),
       type: generateFromSchemaObject(schemaObj, (importData) => {
         imports.push(importData)
       }),

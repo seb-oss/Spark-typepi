@@ -1,6 +1,6 @@
 {
   "name": "@typepi/generator",
-  "version": "0.8.1",
+  "version": "0.8.3",
   "bin": "bin/generate.js",
   "dependencies": {
     "fast-glob": "3.2.12",

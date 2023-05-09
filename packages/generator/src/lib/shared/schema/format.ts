@@ -11,6 +11,10 @@ const formatDocs = (description?: string): string => {
   }
 }
 
+export const formatTypeName = (name: string) => {
+  return name.replace(/[^a-zA-Z0-9_$]/g, '_')
+}
+
 const formatParsedType = (parsedType: ParsedType) => {
   return `${formatDocs(parsedType.description)}export type ${
     parsedType.name
