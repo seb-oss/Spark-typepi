@@ -10,11 +10,19 @@ const header = `/**
 
 export const formatFile = (rows: string[]) => {
   const withHeader = [header, ...rows]
-  return prettier.format(withHeader.join('\n\n'), {
-    parser: 'typescript',
-    singleQuote: true,
-    semi: false,
-  })
+  try {
+    return prettier.format(withHeader.join('\n\n'), {
+      parser: 'typescript',
+      singleQuote: true,
+      semi: false,
+    })
+  } catch (e) {
+    console.error(e)
+    console.error(
+      'A file has been generated, but it cannot be formatted. Make sure the file is correct!!!'
+    )
+    return rows.join('\n')
+  }
 }
 
 export const formatTitle = (title: string) => {

@@ -58,7 +58,12 @@ export const generateFromSchemaObject = (
     if (type === 'object') {
       schemaString = generateObject(schema, addImport)
     } else if (type === 'array') {
-      schemaString = generateFromSchemaObject(schema.items, addImport) + '[]'
+      const arrayType = generateFromSchemaObject(schema.items, addImport)
+      if (arrayType && arrayType.length) {
+        schemaString = `(${arrayType})[]`
+      } else {
+        schemaString = '[]'
+      }
     } else {
       switch (type) {
         case 'integer':
