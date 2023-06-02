@@ -34,10 +34,12 @@ export const parseTypes = (
 const guessType = (schema: SchemaObject) => {
   if (schema.type) {
     return schema.type
+  } else if (schema.enum) {
+    return 'string'
   } else if (schema.properties) {
     return 'object'
   } else {
-    return 'string'
+    return undefined
   }
 }
 
@@ -107,6 +109,10 @@ export const generateFromSchemaObject = (
     if (oneOfString.length > 0) {
       schemaString = schemaString + ' & (' + oneOfString + ')'
     }
+  }
+
+  if (!schemaString || !schemaString.length) {
+    schemaString = 'string' // Default to string if no type was found
   }
 
   return schemaString
