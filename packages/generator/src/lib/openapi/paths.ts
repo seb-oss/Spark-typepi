@@ -28,10 +28,11 @@ export const pathGenerator = (
     return generateFromSchemaObject(schema, addImports)
   }
 
-  const getType = (param: ParameterObject): string => {
+  const getType = (param: ParameterObject, addImport: AddImportFn): string => {
     if (param.type) param.type
     if (param.schema) {
-      if ('type' in param.schema) return param.schema.type
+      if ('type' in param.schema)
+        return generateFromSchemaObject(param.schema, addImport)
     }
     return 'any'
   }
@@ -49,7 +50,8 @@ export const pathGenerator = (
       | 'path'
       | /* V3 */ 'cookie'
       | /* V2 */ 'formData'
-      | /* V2 */ 'body'
+      | /* V2 */ 'body',
+    addImport: AddImportFn
   ): string => {
     const props = params
       .map((it) => {
@@ -60,7 +62,13 @@ export const pathGenerator = (
         }
       })
       .filter((p) => p.in === filter)
-      .map((p) => `${propName(p.name)}${p.required ? '' : '?'}: ${getType(p)}`)
+      .map(
+        (p) =>
+          `${propName(p.name)}${p.required ? '' : '?'}: ${getType(
+            p,
+            addImport
+          )}`
+      )
 
     if (props.length) return `{${props.join(', ')}}`
 
@@ -124,9 +132,21 @@ export const pathGenerator = (
           operation.requestBody as RequestBody,
           addImport
         ),
-        requestParams: generateProps(operation.parameters || [], 'path'),
-        requestQuery: generateProps(operation.parameters || [], 'query'),
-        requestHeaders: generateProps(operation.parameters || [], 'header'),
+        requestParams: generateProps(
+          operation.parameters || [],
+          'path',
+          addImport
+        ),
+        requestQuery: generateProps(
+          operation.parameters || [],
+          'query',
+          addImport
+        ),
+        requestHeaders: generateProps(
+          operation.parameters || [],
+          'header',
+          addImport
+        ),
         response: generateResponse(operation.responses, addImport),
         errorResponse: generateResponse(operation.responses, addImport, true),
       }
