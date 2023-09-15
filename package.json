@@ -11,7 +11,8 @@
     "test-all": "nx run-many --parallel=6 --nx-bail --target=test --all",
     "generate": "nx build generator && ./dist/packages/generator/bin/generate.js openapi -i ./packages/generator/testdata/* -o ./tmp/generated",
     "generate-all": "nx run-many --parallel=6 --nx-bail --target=generate --all",
-    "smoketest": "yarn lint-all && yarn test-all && yarn build-all && yarn generate-all"
+    "smoketest": "yarn lint-all && yarn test-all && yarn build-all && yarn generate-all",
+    "nx": "nx"
   },
   "private": true,
   "contributors": [
@@ -47,6 +48,7 @@
     "jest-environment-jsdom": "29.7.0",
     "nx": "16.8.1",
     "nx-cloud": "16.4.0",
+    "semver": "7.5.4",
     "ts-jest": "29.1.1",
     "ts-node": "10.9.1",
     "typescript": "5.2.2"

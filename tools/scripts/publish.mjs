@@ -7,10 +7,11 @@
  * You might need to authenticate with NPM before running this script.
  */
 
-import { readCachedProjectGraph } from '@nrwl/devkit'
+import devkit from '@nrwl/devkit'
 import { execSync } from 'child_process'
 import { readFileSync, writeFileSync } from 'fs'
 import chalk from 'chalk'
+import semver from 'semver'
 
 function invariant(condition, message) {
   if (!condition) {
@@ -21,16 +22,9 @@ function invariant(condition, message) {
 
 // Executing publish script: node path/to/publish.mjs {name} --version {version} --tag {tag}
 // Default "tag" to "next" so we won't publish the "latest" tag by accident.
-const [, , name, version, tag = 'next'] = process.argv
+const [, , name, versionOrBump] = process.argv
 
-// A simple SemVer validation to validate the version
-const validVersion = /^\d+\.\d+\.\d+(-\w+\.\d+)?/
-invariant(
-  version && validVersion.test(version),
-  `No version provided or version did not match Semantic Versioning, expected: #.#.#-tag.# or #.#.#, got ${version}.`
-)
-
-const graph = readCachedProjectGraph()
+const graph = devkit.readCachedProjectGraph()
 const project = graph.nodes[name]
 
 invariant(
@@ -43,6 +37,19 @@ invariant(
   outputPath,
   `Could not find "build.options.outputPath" of project "${name}". Is project.json configured  correctly?`
 )
+
+const packageJson = JSON.parse(readFileSync(`${project.data.root}/package.json`, 'utf-8'))
+
+const validBump = /^{major|minor|patch}$/
+const version = validBump.test(versionOrBump) ? semver.inc(packageJson.version, versionOrBump) : version
+
+// A simple SemVer validation to validate the version
+invariant(
+  version && semver.valid(version),
+  `No version provided or version did not match Semantic Versioning, expected: #.#.#-tag.# or #.#.#, got ${version}.`
+)
+
+const tag = `${name}-${version}`
 
 process.chdir(outputPath)
 
@@ -59,3 +66,6 @@ try {
 
 // Execute "npm publish" to publish
 execSync(`npm publish --access public --tag ${tag}`)
+
+packageJson.version = version
+writeFileSync(`../../../${project.data.root}/package.json`, JSON.stringify(packageJson, null, 2))
