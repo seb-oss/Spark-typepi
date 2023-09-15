@@ -42,20 +42,20 @@ describe('schema', () => {
         const generated = generateData(schema)
 
         expect(getType(generated.types, 'Card')).toEqual(
-          `{id: string; ownerId: string; nameOnCard: string; settings?: CardSettings}`
+          `{'id': string; 'ownerId': string; 'name-on-card': string; 'settings/foo'?: CardSettings}`
         )
       })
       it('generates deep properties', () => {
         const generated = generateData(schema)
 
         expect(getType(generated.types, 'CardSettings')).toEqual(
-          `{cardId: string; frozen: {value: boolean; editableByChild: boolean}}`
+          `{'cardId': string; 'frozen': {'value': boolean; 'editableByChild': boolean}}`
         )
       })
       it('generates array properties', () => {
         const generated = generateData(schema)
 
-        expect(getType(generated.types, 'CardList')).toEqual(`{cards: (Card)[]}`)
+        expect(getType(generated.types, 'CardList')).toEqual(`{'cards': (Card)[]}`)
       })
       it('generates docs', () => {
         const generated = generateData(schema)
@@ -155,18 +155,18 @@ describe('schema', () => {
 /* eslint-disable */
 
 export type Card = {
-  id: string
-  ownerId: string
-  nameOnCard: string
-  settings?: CardSettings
+  'id': string
+  'ownerId': string
+  'name-on-card': string
+  'settings/foo'?: CardSettings
 }
 
 export type CardSettings = {
-  cardId: string
-  frozen: { value: boolean; editableByChild: boolean }
+  'cardId': string
+  'frozen': { 'value': boolean; 'editableByChild': boolean }
 }
 
-export type CardList = { cards: Card[] }
+export type CardList = { 'cards': Card[] }
 
 /**
  * A documented type
@@ -175,33 +175,33 @@ export type Documented = {
   /**
    * The id of the documented type
    */
-  id: string
+  'id': string
   /**
    * Settings
    */
-  settings?: CardSettings
+  'settings'?: CardSettings
 }
 
 export type HttpError = { message: string; stack?: string }
 
 type TypedRoute<RequestParams, RequestQuery, RequestHeaders, RequestBody, Response, ErrorResponse> = {
-  requestParams: RequestParams
-  requestQuery: RequestQuery
-  requestHeaders: RequestHeaders
-  requestBody: RequestBody
-  response: Response
-  error: ErrorResponse
+  'requestParams': RequestParams
+  'requestQuery': RequestQuery
+  'requestHeaders': RequestHeaders
+  'requestBody': RequestBody
+  'response': Response
+  'error': ErrorResponse
 }
 
 export type CardsAPIRoutesDefinition = {
   get: {
-    '/:cardId': TypedRoute<{cardId: string}, {cardNickname: boolean}, {'X-User-Id': string, 'X-Distributor-Id'?: string}, never, [200, Card], [401, HttpError]>,
+    '/:cardId': TypedRoute<{'cardId': string}, {'cardNickname': boolean}, {'X-User-Id': string, 'X-Distributor-Id'?: string}, never, [200, Card], [401, HttpError]>,
   },
   delete: {
-    '/:cardId': TypedRoute<{cardId: string}, {cardNickname: boolean}, never, never, [200, Card], never>,
+    '/:cardId': TypedRoute<{'cardId': string}, {'cardNickname': boolean}, never, never, [200, Card], never>,
   },
   put: {
-    '/:cardId/settings': TypedRoute<{cardId: string}, never, {'x-forwarded-authorization': string}, CardSettings, [204, void], never>,
+    '/:cardId/settings': TypedRoute<{'cardId': string}, never, {'x-forwarded-authorization': string}, CardSettings, [204, void], never>,
   },
 }
 `

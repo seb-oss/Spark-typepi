@@ -144,14 +144,14 @@
           "ownerId": {
             "type": "string"
           },
-          "nameOnCard": {
+          "name-on-card": {
             "type": "string"
           },
-          "settings": {
+          "settings/foo": {
             "$ref": "#/components/schemas/CardSettings"
           }
         },
-        "required": ["id", "ownerId", "nameOnCard"]
+        "required": ["id", "ownerId", "name-on-card"]
       },
       "CardSettings": {
         "title": "CardSettings",
