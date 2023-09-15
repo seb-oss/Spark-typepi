@@ -22,7 +22,7 @@ function invariant(condition, message) {
 
 // Executing publish script: node path/to/publish.mjs {name} --version {version} --tag {tag}
 // Default "tag" to "next" so we won't publish the "latest" tag by accident.
-const [, , name, versionOrBump] = process.argv
+const [, , name, versionOrBump, tag='latest'] = process.argv
 
 const graph = devkit.readCachedProjectGraph()
 const project = graph.nodes[name]
@@ -40,16 +40,14 @@ invariant(
 
 const packageJson = JSON.parse(readFileSync(`${project.data.root}/package.json`, 'utf-8'))
 
-const validBump = /^{major|minor|patch}$/
-const version = validBump.test(versionOrBump) ? semver.inc(packageJson.version, versionOrBump) : version
+const validBump = /^major|minor|patch$/
+const version = validBump.test(versionOrBump) ? semver.inc(packageJson.version, versionOrBump) : versionOrBump
 
 // A simple SemVer validation to validate the version
 invariant(
   version && semver.valid(version),
   `No version provided or version did not match Semantic Versioning, expected: #.#.#-tag.# or #.#.#, got ${version}.`
 )
-
-const tag = `${name}-${version}`
 
 process.chdir(outputPath)
 
