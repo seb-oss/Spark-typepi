@@ -55,7 +55,7 @@ describe('schema', () => {
       it('generates array properties', () => {
         const generated = generateData(schema)
 
-        expect(getType(generated.types, 'CardList')).toEqual(`{cards: Card[]}`)
+        expect(getType(generated.types, 'CardList')).toEqual(`{cards: (Card)[]}`)
       })
       it('generates docs', () => {
         const generated = generateData(schema)
