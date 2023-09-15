@@ -32,7 +32,7 @@ export const formatParsedTypes = (types: ParsedType[]): string[] => {
 export const formatProperties = (properties: ParsedProperty[]) => {
   const allProps = properties
     .map(({ name, required, value, description }) => {
-      return `${formatDocs(description)}${name}${required ? '' : '?'}: ${value}`
+      return `${formatDocs(description)}'${name}'${required ? '' : '?'}: ${value}`
     })
     .join(`; `)
   return `{${allProps}}`
