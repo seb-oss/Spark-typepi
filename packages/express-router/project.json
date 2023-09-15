@@ -12,7 +12,8 @@
         "tsConfig": "packages/express-router/tsconfig.lib.json",
         "packageJson": "packages/express-router/package.json",
         "main": "packages/express-router/src/index.ts",
-        "assets": ["packages/express-router/*.md"]
+        "assets": ["packages/express-router/*.md"],
+        "updateBuildableProjectDepsInPackageJson": true
       }
     },
     "lint": {
@@ -24,7 +25,7 @@
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["coverage/packages/express-router"],
+      "outputs": ["{workspaceRoot}/coverage/packages/express-router"],
       "options": {
         "jestConfig": "packages/express-router/jest.config.ts",
         "passWithNoTests": true

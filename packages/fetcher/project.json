@@ -11,7 +11,8 @@
         "outputPath": "dist/packages/fetcher",
         "main": "packages/fetcher/src/index.ts",
         "tsConfig": "packages/fetcher/tsconfig.lib.json",
-        "assets": ["packages/fetcher/*.md"]
+        "assets": ["packages/fetcher/*.md"],
+        "updateBuildableProjectDepsInPackageJson": true
       }
     },
     "publish": {
@@ -34,7 +35,7 @@
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["coverage/packages/fetcher"],
+      "outputs": ["{workspaceRoot}/coverage/packages/fetcher"],
       "options": {
         "jestConfig": "packages/fetcher/jest.config.ts",
         "passWithNoTests": true

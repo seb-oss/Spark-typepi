@@ -23,7 +23,8 @@
           "packages/generator/bin/generate.js",
           "packages/generator/README.md",
           "LICENSE"
-        ]
+        ],
+        "updateBuildableProjectDepsInPackageJson": true
       },
       "dependsOn": ["syncPackage"]
     },
@@ -36,7 +37,7 @@
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["coverage/packages/generator"],
+      "outputs": ["{workspaceRoot}/coverage/packages/generator"],
       "options": {
         "jestConfig": "packages/generator/jest.config.ts",
         "passWithNoTests": true
